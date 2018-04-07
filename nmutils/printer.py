@@ -69,7 +69,7 @@ class TableColumn:
 
 
 class Table:
-    def __init__(self, separator=""):
+    def __init__(self, separator=" "):
         self._current_row = None
         self._rows = []
         self._columns = []
@@ -139,6 +139,6 @@ class Table:
                     line += sep
                 line += cols[i].format_aligned(value)
             result.append(line)
-        
+
         return result
 
