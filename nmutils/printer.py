@@ -31,7 +31,15 @@ class Printer:
     def indent(self, value="  "):
         self._indent_stack.append(self.current_indent + str(value))
 
+    def unindent(self):
+        self._indent_stack.pop()
+
     def write(self, value):
+        print_fn = getattr(value, "__print__", None)
+        if print_fn is not None:
+            print_fn(self)
+            return self
+
         lines = str(value).splitlines(keepends=True)
         is_new_line = self._is_new_line
         w = self._out.write
@@ -42,6 +50,8 @@ class Printer:
             w(line)
             is_new_line = line.endswith("\n")
         self._is_new_line = is_new_line
+
+        return self
 
     def writef(self, value, *args, **kwargs):
         formatted = str(value).format(*args, **kwargs)
@@ -74,6 +84,18 @@ class Table:
         self._rows = []
         self._columns = []
         self.separator = separator
+
+    def __print__(self, printer):
+        lines = self.to_lines()
+
+        for line in lines[:-1]:
+            printer.writel(line)
+
+        # The rule for printing is to never end with newline.
+        # If the caller wants newline after the table (or anything else),
+        # she's responsible for putting it there herself.
+        if len(lines) > 0:
+            printer.write(lines[-1])
 
     def column(self, alignment="l"):
         col = TableColumn(alignment=alignment)

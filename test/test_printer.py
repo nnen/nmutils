@@ -21,3 +21,18 @@ class TestTable(unittest.TestCase):
 
         self.assertEqual(expected_lines, tbl.to_lines())
 
+    def test_table_print(self):
+        str, p = printer.make_str_printer()
+        tbl = printer.Table()
+        tbl.column("l").column("r")
+        tbl.row("a", "b")
+        tbl.row(100, 200)
+
+        p.indent("  ")
+        p.writel(tbl)
+        p.unindent()
+
+        self.assertEqual(str.getvalue(),
+                         "  a     b\n" +
+                         "  100 200\n")
+
