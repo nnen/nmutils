@@ -6,13 +6,9 @@ import sys
 
 
 def make_printer(out=None):
+    if isinstance(out, Printer):
+        return out
     return Printer(out=out)
-
-
-def make_str_printer():
-    out = io.StringIO()
-    printer = Printer(out=out)
-    return out, printer
 
 
 class Printer:
@@ -62,6 +58,19 @@ class Printer:
         if value is not None:
             w(value)
         w("\n")
+
+
+class StringPrinter(Printer):
+    def __init__(self):
+        out = io.StringIO()
+        super().__init__(out=out)
+        self._string_io = out
+
+    def __print__(self, printer: Printer):
+        printer.write(self.get_value())
+
+    def get_value(self):
+        return self._string_io.getvalue()
 
 
 class TableColumn:

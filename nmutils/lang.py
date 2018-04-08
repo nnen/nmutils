@@ -1,9 +1,12 @@
 # nmutils.lang
 
 
+import pprint
+
+
 def safe_repr(value):
     try:
-        return repr(value)
+        return pprint.saferepr(value)
     except:
         return "<repr-error>"
 

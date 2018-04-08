@@ -22,7 +22,7 @@ class TestTable(unittest.TestCase):
         self.assertEqual(expected_lines, tbl.to_lines())
 
     def test_table_print(self):
-        str, p = printer.make_str_printer()
+        p = printer.StringPrinter()
         tbl = printer.Table()
         tbl.column("l").column("r")
         tbl.row("a", "b")
@@ -32,7 +32,7 @@ class TestTable(unittest.TestCase):
         p.writel(tbl)
         p.unindent()
 
-        self.assertEqual(str.getvalue(),
+        self.assertEqual(p.get_value(),
                          "  a     b\n" +
                          "  100 200\n")
 
