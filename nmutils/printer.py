@@ -20,11 +20,14 @@ class Printer:
         self._indent_stack = ["", ]
         self._is_new_line = True
 
+        self.default_indent = "  "
+
     @property
     def current_indent(self):
         return self._indent_stack[-1]
 
-    def indent(self, value="  "):
+    def indent(self, value=None):
+        value = value or self.default_indent
         self._indent_stack.append(self.current_indent + str(value))
 
     def unindent(self):
