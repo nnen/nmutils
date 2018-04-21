@@ -25,6 +25,10 @@ class DependencyManager:
             self._entries[name] = entry
         return entry
 
+    def get_proxy(self, name):
+        entry = self.get_entry(name)
+        return entry.proxy
+
     def add_provider(self, name, provider):
         entry = self.get_entry(name)
         entry.add_provider(provider)
@@ -45,11 +49,18 @@ class DependencyEntry:
         self._providers = []
         self._value = None
         self._all_values = None
+        self._proxy = None
 
         self.add_provider(NameLookupProvider(self.name))
 
     def add_provider(self, provider):
         self._providers.append(provider)
+
+    @property
+    def proxy(self):
+        if self._proxy is None:
+            self._proxy = DependencyProxy(self)
+        return self._proxy
 
     @property
     def value(self):
@@ -77,6 +88,26 @@ class DependencyEntry:
                 LOGGER.exception("Failed to get all dependency values for '%s'.", self.name)
                 self._all_values = []
         return self._all_values
+
+
+class DependencyProxy:
+    def __init__(self, entry: DependencyEntry):
+        self._entry = entry
+        self._value = None
+
+    def _get_value(self):
+        if self._value is None:
+            self._value = self._entry.value
+        return self._value
+
+    def __getattr__(self, item):
+        return getattr(self._get_value(), item)
+
+    def __setattr__(self, key, value):
+        if key.startswith("_"):
+            super().__setattr__(key, value)
+        else:
+            setattr(self._get_value(), key, value)
 
 
 class Provider:
@@ -177,6 +208,10 @@ def provider(name, *args, **kwargs):
 
 def dependency(name):
     return MANAGER.get_entry(name)
+
+
+def proxy(name):
+    return MANAGER.get_proxy(name)
 
 
 MANAGER = DependencyManager()

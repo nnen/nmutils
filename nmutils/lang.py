@@ -2,6 +2,10 @@
 
 
 import pprint
+import logging
+
+
+LOGGER = logging.getLogger(__name__)
 
 
 def safe_repr(value):
@@ -53,4 +57,48 @@ class Proxy:
             super().__setattr__(key, value)
         else:
             setattr(self._target, key, value)
+
+
+def add_callback(callbacks: list, callback):
+    if callbacks is None:
+        callbacks = []
+    callbacks.append(callback)
+    return callbacks
+
+
+def remove_callback(callbacks: list, callback):
+    if callbacks is not None:
+        callbacks.remove(callback)
+
+
+def invoke_callbacks(callbacks: list, *args, **kwargs):
+    if callbacks is None:
+        return
+    for callback in callbacks:
+        try:
+            callback(*args, **kwargs)
+        except:
+            LOGGER.exception("Exception occured in a callback '%r'.", callback)
+
+
+class Callbacks:
+    def __init__(self):
+        self._callbacks = None
+
+    def __call__(self, *args, **kwargs):
+        self.invoke(*args, **kwargs)
+
+    def __len__(self):
+        if self._callbacks is None:
+            return 0
+        return len(self._callbacks)
+
+    def add(self, callback):
+        self._callbacks = add_callback(self._callbacks, callback)
+
+    def remove(self, callback):
+        remove_callback(self._callbacks, callback)
+
+    def invoke(self, *args, **kwargs):
+        invoke_callbacks(self._callbacks, *args, **kwargs)
 

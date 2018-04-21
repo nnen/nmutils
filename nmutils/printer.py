@@ -176,3 +176,9 @@ class Table:
 
         return result
 
+
+PRINTER = Printer()
+write = PRINTER.write
+writel = PRINTER.writel
+writef = PRINTER.writef
+

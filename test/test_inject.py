@@ -31,3 +31,8 @@ class TestDependency(TestBase):
         self.assertIsNotNone(printer)
         self.assertIsInstance(printer, CustomPrinterClass)
 
+    def test_proxy(self):
+        printer = inject.proxy("nmutils.printer.Printer")
+        self.assertIsNotNone(printer.write)
+        self.assertIsNone(getattr(printer, "attributeThatDoesntExist", None))
+
